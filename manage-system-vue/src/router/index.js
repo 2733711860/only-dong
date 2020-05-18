@@ -37,7 +37,7 @@ export default new Router({
                 {
                     path: '/form',
                     component: () => import(/* webpackChunkName: "form" */ '../components/page/BaseForm.vue'),
-                    meta: { title: '基本表单' }
+                    meta: { title: '图片平台' }
                 },
                 {
                     // 富文本编辑器组件

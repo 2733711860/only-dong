@@ -56,10 +56,10 @@
 					{
 						icon: 'el-icon-lx-calendar',
 						index: '3',
-						title: '音乐平台',
+						title: '图片平台',
 						subs: [{
 								index: 'form',
-								title: '基本表单'
+								title: '图片列表'
 							},
 							{
 								index: '3-2',

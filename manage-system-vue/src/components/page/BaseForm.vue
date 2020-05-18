@@ -1,152 +1,180 @@
 <template>
-    <div>
-        <div class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item>
-                    <i class="el-icon-lx-calendar"></i> 表单
-                </el-breadcrumb-item>
-                <el-breadcrumb-item>基本表单</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
-        <div class="container">
-            <div class="form-box">
-                <el-form ref="form" :model="form" label-width="80px">
-                    <el-form-item label="表单名称">
-                        <el-input v-model="form.name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="选择器">
-                        <el-select v-model="form.region" placeholder="请选择">
-                            <el-option key="bbk" label="步步高" value="bbk"></el-option>
-                            <el-option key="xtc" label="小天才" value="xtc"></el-option>
-                            <el-option key="imoo" label="imoo" value="imoo"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="日期时间">
-                        <el-col :span="11">
-                            <el-date-picker
-                                type="date"
-                                placeholder="选择日期"
-                                v-model="form.date1"
-                                value-format="yyyy-MM-dd"
-                                style="width: 100%;"
-                            ></el-date-picker>
-                        </el-col>
-                        <el-col class="line" :span="2">-</el-col>
-                        <el-col :span="11">
-                            <el-time-picker
-                                placeholder="选择时间"
-                                v-model="form.date2"
-                                style="width: 100%;"
-                            ></el-time-picker>
-                        </el-col>
-                    </el-form-item>
-                    <el-form-item label="城市级联">
-                        <el-cascader :options="options" v-model="form.options"></el-cascader>
-                    </el-form-item>
-                    <el-form-item label="选择开关">
-                        <el-switch v-model="form.delivery"></el-switch>
-                    </el-form-item>
-                    <el-form-item label="多选框">
-                        <el-checkbox-group v-model="form.type">
-                            <el-checkbox label="步步高" name="type"></el-checkbox>
-                            <el-checkbox label="小天才" name="type"></el-checkbox>
-                            <el-checkbox label="imoo" name="type"></el-checkbox>
-                        </el-checkbox-group>
-                    </el-form-item>
-                    <el-form-item label="单选框">
-                        <el-radio-group v-model="form.resource">
-                            <el-radio label="步步高"></el-radio>
-                            <el-radio label="小天才"></el-radio>
-                            <el-radio label="imoo"></el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="文本框">
-                        <el-input type="textarea" rows="5" v-model="form.desc"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" @click="onSubmit">表单提交</el-button>
-                        <el-button>取消</el-button>
-                    </el-form-item>
-                </el-form>
-            </div>
-        </div>
-    </div>
+	<div>
+		<div class="crumbs">
+			<el-breadcrumb separator="/">
+				<el-breadcrumb-item>
+					<i class="el-icon-lx-calendar"></i> 图片
+				</el-breadcrumb-item>
+				<el-breadcrumb-item>图片列表</el-breadcrumb-item>
+			</el-breadcrumb>
+		</div>
+		<div class="container">
+			<el-button @click="resetDateFilter">清除日期过滤器</el-button>
+		  <el-button @click="clearFilter">清除所有过滤器</el-button>
+		  <el-table
+		    ref="filterTable"
+		    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+		    max-height="300"
+		    tooltip-effect="dark"
+		    @selection-change="handleSelectionChange">
+		    <el-table-column
+		      type="selection"
+		      width="55">
+		    </el-table-column>
+		    <el-table-column
+		      prop="name"
+		      label="图片名称"
+		      width="150">
+		    </el-table-column>
+		    <el-table-column
+		      prop="userName"
+		      label="上传者"
+		      width="120">
+		    </el-table-column>
+		    <el-table-column
+		      prop="time"
+		      label="上传日期"
+		      sortable
+		      width="150"
+		      column-key="date"
+		      :filters="[{text: '2016-05-01', value: '2016-05-01'}, {text: '2016-05-02', value: '2016-05-02'}, {text: '2016-05-03', value: '2016-05-03'}, {text: '2016-05-04', value: '2016-05-04'}]"
+		      :filter-method="filterHandler"
+		    >
+		    </el-table-column>
+		    <el-table-column
+		      prop="describe"
+		      label="图片描述"
+		      min-width="250">
+		    </el-table-column>
+		    <el-table-column
+		      prop="classifyName"
+		      label="分类"
+		      min-width="100"
+		      :filters="[{ text: '家', value: '家' }, { text: '公司', value: '公司' }]"
+		      :filter-method="filterTag"
+		      filter-placement="bottom-end">
+		      <template slot-scope="scope">
+		        <el-tag
+		          :type="scope.row.classifyName === '家' ? 'primary' : 'success'"
+		          disable-transitions>{{scope.row.classifyName}}</el-tag>
+		      </template>
+		    </el-table-column>
+		    <el-table-column
+		      fixed="right"
+		      min-width="220">
+		      <template slot="header" slot-scope="scope">
+		        <el-input
+		          v-model="search"
+		          size="mini"
+		          placeholder="输入图片名称进行搜索"/>
+		      </template>
+		      <template slot-scope="scope">
+		        <el-button @click="handleClick(scope.row)" size="mini">预览</el-button>
+		        <el-button size="mini">编辑</el-button>
+		        <el-button size="mini" type="danger">删除</el-button>
+		      </template>
+		    </el-table-column>
+		  </el-table>
+		  
+		  <el-pagination
+	      @size-change="handleSizeChange"
+	      @current-change="handleCurrentChange"
+	      :current-page="currentPage"
+	      :page-sizes="[100, 200, 300, 400]"
+	      :page-size="100"
+	      layout="total, sizes, prev, pager, next, jumper"
+	      :total="400">
+	    </el-pagination>
+		</div>
+	</div>
 </template>
 
 <script>
 export default {
-    name: 'baseform',
-    data() {
-        return {
-            options: [
-                {
-                    value: 'guangdong',
-                    label: '广东省',
-                    children: [
-                        {
-                            value: 'guangzhou',
-                            label: '广州市',
-                            children: [
-                                {
-                                    value: 'tianhe',
-                                    label: '天河区'
-                                },
-                                {
-                                    value: 'haizhu',
-                                    label: '海珠区'
-                                }
-                            ]
-                        },
-                        {
-                            value: 'dongguan',
-                            label: '东莞市',
-                            children: [
-                                {
-                                    value: 'changan',
-                                    label: '长安镇'
-                                },
-                                {
-                                    value: 'humen',
-                                    label: '虎门镇'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    value: 'hunan',
-                    label: '湖南省',
-                    children: [
-                        {
-                            value: 'changsha',
-                            label: '长沙市',
-                            children: [
-                                {
-                                    value: 'yuelu',
-                                    label: '岳麓区'
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
-            form: {
-                name: '',
-                region: '',
-                date1: '',
-                date2: '',
-                delivery: true,
-                type: ['步步高'],
-                resource: '小天才',
-                desc: '',
-                options: []
-            }
-        };
+	data() {
+		return {
+			tableData: [{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '落日余晖',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      }],
+      search: '',
+      currentPage: 1
+		}
+	},
+	methods: {
+		resetDateFilter() { // 清除日期选择
+      this.$refs.filterTable.clearFilter('date');
     },
-    methods: {
-        onSubmit() {
-            this.$message.success('提交成功！');
-        }
+    clearFilter() { // 清除所有过滤器
+      this.$refs.filterTable.clearFilter();
+    },
+    formatter(row, column) { // 格式处理
+      return row.address;
+    },
+    filterTag(value, row) { // 标签筛选
+      return row.classifyName === value;
+    },
+    filterHandler(value, row, column) { // 日期筛选
+      const property = column['property'];
+      return row[property] === value;
+    },
+    handleSelectionChange(val) { // 多选发生变化
+    	console.log(val)
+    },
+    handleClick(row) { // 点击行方法
+      console.log(row);
+    },
+    handleSizeChange(val) { // 每页条数发生变化
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) { // 当前页变化
+      console.log(`当前页: ${val}`);
     }
-};
+	}
+}
 </script>
