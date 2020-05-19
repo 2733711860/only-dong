@@ -9,11 +9,21 @@
 			</el-breadcrumb>
 		</div>
 		<div class="container">
-			<el-button @click="resetDateFilter">清除日期过滤器</el-button>
-		  <el-button @click="clearFilter">清除所有过滤器</el-button>
+			<div class="basic_button">
+				<div style="display: flex;">
+					<el-button @click="resetDateFilter">清除日期过滤器</el-button>
+			  	<el-button @click="clearFilter">清除所有过滤器</el-button>
+				</div>
+				<el-input v-model="search" size="mini" class="tab_search">
+			    <el-select v-model="selectValue" slot="prepend" style="width: 110px;">
+			      <el-option label="图片名称" value="1"></el-option>
+			      <el-option label="上传者" value="2"></el-option>
+			    </el-select>
+			  </el-input>
+			</div>
 		  <el-table
 		    ref="filterTable"
-		    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+		    :data="nowData"
 		    max-height="300"
 		    tooltip-effect="dark"
 		    @selection-change="handleSelectionChange">
@@ -60,14 +70,9 @@
 		      </template>
 		    </el-table-column>
 		    <el-table-column
+		      label="操作"
 		      fixed="right"
 		      min-width="220">
-		      <template slot="header" slot-scope="scope">
-		        <el-input
-		          v-model="search"
-		          size="mini"
-		          placeholder="输入图片名称进行搜索"/>
-		      </template>
 		      <template slot-scope="scope">
 		        <el-button @click="handleClick(scope.row)" size="mini">预览</el-button>
 		        <el-button size="mini">编辑</el-button>
@@ -75,16 +80,18 @@
 		      </template>
 		    </el-table-column>
 		  </el-table>
-		  
-		  <el-pagination
-	      @size-change="handleSizeChange"
-	      @current-change="handleCurrentChange"
-	      :current-page="currentPage"
-	      :page-sizes="[100, 200, 300, 400]"
-	      :page-size="100"
-	      layout="total, sizes, prev, pager, next, jumper"
-	      :total="400">
-	    </el-pagination>
+
+		  <div class="base_pagination">
+		  	<el-pagination
+		      @size-change="handleSizeChange"
+		      @current-change="handleCurrentChange"
+		      :current-page="currentPage"
+		      :page-sizes="[100, 200, 300, 400]"
+		      :page-size="100"
+		      layout="total, sizes, prev, pager, next, jumper"
+		      :total="400">
+		    </el-pagination>
+		  </div>
 		</div>
 	</div>
 </template>
@@ -95,55 +102,67 @@ export default {
 		return {
 			tableData: [{
 				name: '落日余晖',
+				userName: '张无忌',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '夕阳西下',
+				userName: '李清照',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '几度夕阳红',
+				userName: '张三丰',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '青山不改',
+				userName: '辛弃疾',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '绿水长流',
+				userName: '李世民',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '后会有期',
+				userName: '李世民',
+        time: '2016-05-02',
+        describe: '落日余晖，夕阳西下，人影依偎。',
+        classifyName: '家'
+      },{
+				name: '江湖再见',
 				userName: '张三丰',
         time: '2016-05-02',
         describe: '落日余晖，夕阳西下，人影依偎。',
         classifyName: '家'
       },{
 				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张三丰',
+				userName: '张无忌',
         time: '2016-05-02',
         describe: '落日余晖，夕阳西下，人影依偎。',
         classifyName: '家'
       }],
       search: '',
-      currentPage: 1
+      currentPage: 1,
+      selectValue: '1'
+		}
+	},
+	computed: {
+		nowData () { // 当前表格数据
+			if (this.selectValue == '1') { // 根据图片名称过滤
+				return this.tableData.filter(data => !this.search || data.name.toLowerCase().includes(this.search.toLowerCase()))
+			} else if (this.selectValue == '2') { // 根据上传者姓名进行过滤
+				return this.tableData.filter(data => !this.search || data.userName.toLowerCase().includes(this.search.toLowerCase()))
+			} else {
+				return this.tableData
+			}
 		}
 	},
 	methods: {
@@ -178,3 +197,17 @@ export default {
 	}
 }
 </script>
+
+<style scoped="scoped">
+	.basic_button{
+		margin-bottom: 15px;
+		display: flex;
+		justify-content: space-between;
+	}
+	.tab_search{
+		width: 350px;
+	}
+	.base_pagination{
+		margin-top: 20px;
+	}
+</style>
