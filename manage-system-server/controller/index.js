@@ -4,6 +4,7 @@ const other = require('./other');
 // const cityList = require('./cityList');
 // const music = require('./music');
 const file = require('./file');
+const image = require('./imageC/image');
 
 module.exports = {
   user,
@@ -11,5 +12,6 @@ module.exports = {
   // tagList,
   // cityList,
   // music,
-  file
-}
+  file,
+  image
+};

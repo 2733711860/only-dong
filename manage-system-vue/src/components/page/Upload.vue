@@ -57,6 +57,8 @@
 
 <script>
 import VueCropper from 'vue-cropperjs'
+import { formatDate } from '@/utils/commonFunction.js'
+import { mapGetters } from 'vuex'
 export default {
 	name: 'upload',
 	data: function() {
@@ -80,6 +82,9 @@ export default {
 	components: {
 		VueCropper
 	},
+	computed: {
+  	...mapGetters(['user'])
+  },
 	methods: {
 		handleRemove(file, fileList) { // 删除图片
       console.log(file, fileList)
@@ -114,14 +119,21 @@ export default {
       })
     },
     async submitImage() { // 上传图片接口
-    	let param = {
-    		name: '', // 图片名称
-    		describe: '', // 图片描述
-    		classify: '', // 图片分类
-    		userName: '', // 上传者姓名
-    		userId: '', // 上传者ID
-    		time: '' // 上传时间
-    	}
+    	let formDate = new FormData()
+    	formDate.append("file", this.fileList[0].raw);
+    	formDate.append("name", this.uploadForm.name);
+    	formDate.append("describe", this.uploadForm.describe);
+    	formDate.append("classify", this.uploadForm.classify);
+    	formDate.append("userName", this.user.userName);
+    	formDate.append("userId", this.user.userId);
+    	formDate.append("time", formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss'));
+    	await this.$post(this.$api.imageUpload, formDate).then(data => {
+    		if (data.code == 200) {
+					this.$message.success(data.msg);
+				} else {
+					this.$message.error(data.msg);
+				}
+	    })
     }
 	},
 	created() {

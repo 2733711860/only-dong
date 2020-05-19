@@ -28,8 +28,8 @@ export default {
   getCheckCode: baseUrl + '/api/other/getCheckCode', // 获取验证码
   register: baseUrl + '/api/user/register', // 注册
   improve: baseUrl + '/api/user/improve', // 用户信息完善
-  upload: baseUrl + '/api/file/upload', // 图片上传接口
-  getEntry: baseUrl + '/api/getEntry',
+  upload: baseUrl + '/api/file/upload', // 头像上传接口
+  imageUpload: baseUrl + '/api/file/image/upload', // 图片上传
   getImagePage: baseUrl + '/api/getImagePage',
   searchImage: baseUrl + '/api/searchImage',
   getWordImage: baseUrl + '/api/getWordImage',
