@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const Koa = require('koa');
+const Koa = require('_koa@2.12.0@koa');
 const app = new Koa();
-const getUploadFileExt = require('../utils/getUploadFileExt');
-const getUploadFileName = require('../utils/getUploadFileName');
-const checkDirExist = require('../utils/checkDirExist');
-const getUploadDirName = require('../utils/getUploadDirName');
-const {listenHost, listenPort} = require('../config.js');
-const { addData, findData, editData } = require('../mysql/mysql');
-const {check_token_code, create_token} = require('../utils/token');
+const getUploadFileExt = require('../../utils/getUploadFileExt');
+const getUploadFileName = require('../../utils/getUploadFileName');
+const checkDirExist = require('../../utils/checkDirExist');
+const getUploadDirName = require('../../utils/getUploadDirName');
+const {listenHost, listenPort} = require('../../config.js');
+const { addData, findData, editData } = require('../../mysql/mysql');
+const {check_token_code, create_token} = require('../../utils/token');
 
 module.exports = {
   // 文件上传
@@ -19,7 +19,7 @@ module.exports = {
       const reader = fs.createReadStream(file.path); // 创建可读流
       const ext = getUploadFileExt(file.name); // 获取文件后缀
       const dirName = await getUploadDirName(); // 最终要保存到的文件夹目录
-      const dir = path.join(__dirname, `../public/upload/${dirName}`);
+      const dir = path.join(__dirname, `../../public/upload/${dirName}`);
       checkDirExist(dir); // 检查文件夹是否存在如果不存在则新建文件夹
       const fileName = getUploadFileName(ext); // 获取文件名称
       file.path = `${dir}/${fileName}`; // 重新覆盖 file.path 属性
@@ -52,6 +52,7 @@ module.exports = {
         }
       });
     } catch (e) {
+      console.log(e)
       ctx.body = {
         code: 500,
         msg: '服务器异常，用户头像上传失败！'

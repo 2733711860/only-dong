@@ -1,3 +1,6 @@
+/*
+* 图片上传
+* */
 const fs = require('fs');
 const path = require('path');
 const Koa = require('koa');
@@ -22,7 +25,7 @@ module.exports = {
       const dirName = await getUploadDirName(); // 最终要保存到的文件夹目录
       const dir = path.join(__dirname, `../../public/images/${dirName}`);
       checkDirExist(dir); // 检查文件夹是否存在如果不存在则新建文件夹
-      const fileName = `${param.name}.${ext}`; // 获取文件名称
+      const fileName = param.name=='' ? name : `${param.name}.${ext}`; // 获取文件名称
       file.path = `${dir}/${fileName}`; // 重新覆盖 file.path 属性
       app.context.uploadpath = app.context.uploadpath ? app.context.uploadpath : {};
       app.context.uploadpath[name] = `${dirName}/${fileName}`;
@@ -47,7 +50,6 @@ module.exports = {
           msg: "图片上传失败!"
         }
       });
-
     } catch (e) {
       ctx.body = {
         code: 500,

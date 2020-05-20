@@ -2,10 +2,10 @@
 * 用户表进行操作
 *
 */
-const sha1 = require('sha1'); // 加密算法
-const {check_token_code, create_token} = require('../utils/token');
-const { PWD_ENCODE_STR} = require('../config');
-const { addData, findData, editData } = require('../mysql/mysql');
+const sha1 = require('_sha1@1.1.1@sha1'); // 加密算法
+const {check_token_code, create_token} = require('../../utils/token');
+const { PWD_ENCODE_STR} = require('../../config');
+const { addData, findData, editData } = require('../../mysql/mysql');
 const xss = require('xss'); // 安全，XSS过滤器可以从输入值中删除html标记
 const saveImage = require('./file')
 
@@ -88,7 +88,7 @@ module.exports =  {
         }
       }, (err) => {
         ctx.body = {
-          code: 409,
+          code: 401,
           msg: "注册失败，服务器异常!"
         }
       });

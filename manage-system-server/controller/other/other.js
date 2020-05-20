@@ -1,6 +1,6 @@
-const BMP24 = require('gd-bmp').BMP24;
-const {create_token} = require('../utils/token');
-const { addData } = require('../mysql/mysql');
+const BMP24 = require('_gd-bmp@1.2.4@gd-bmp/dist/BMP24').BMP24;
+const {create_token} = require('../../utils/token');
+const { addData } = require('../../mysql/mysql');
 
 module.exports = {
   // 获取验证码接口
