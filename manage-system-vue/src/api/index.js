@@ -30,7 +30,7 @@ export default {
   improve: baseUrl + '/api/user/improve', // 用户信息完善
   upload: baseUrl + '/api/file/upload', // 头像上传接口
   imageUpload: baseUrl + '/api/file/image/upload', // 图片上传
-  getImagePage: baseUrl + '/api/getImagePage',
-  searchImage: baseUrl + '/api/searchImage',
+  getClassify: baseUrl + '/api/file/image/getClassify', // 获取图片分类
+  search: baseUrl + '/api/image/search', // 图片查询
   getWordImage: baseUrl + '/api/getWordImage',
 }

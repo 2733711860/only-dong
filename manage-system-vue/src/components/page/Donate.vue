@@ -47,14 +47,14 @@
           	<el-button size="medium" type="primary">修改密码</el-button>
           </el-form-item>
         </el-form>
-        
+
         <div class="crop-demo">
           <img :src="form.avatar" class="pre-img">
           <div class="crop-demo-btn">上传头像
             <input class="crop-input" type="file" name="image" accept="image/*" @change="setImage"/>
           </div>
         </div>
-        
+
         <el-dialog title="裁剪图片" :visible.sync="dialogVisible" width="30%">
           <vue-cropper ref='cropper' :src="imgSrc" :ready="cropImage" :zoom="cropImage" :cropmove="cropImage" style="width:100%;height:300px;"></vue-cropper>
           <span slot="footer" class="dialog-footer">
@@ -174,6 +174,11 @@ export default {
     	formDate.append("file", this.form.avatarFile);
     	formDate.append("userId", this.form.userId);
     	await this.$post(this.$api.upload, formDate).then(data => {
+    		if (data.code == 200) {
+					this.$message.success(data.msg);
+				} else {
+					this.$message.error(data.msg);
+				}
 	    })
     },
     dataURLtoFile (dataurl, filename) { // 将base64转换为文件

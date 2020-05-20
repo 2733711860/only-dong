@@ -10,22 +10,37 @@
 		</div>
 		<div class="container">
 			<div class="basic_button">
-				<div style="display: flex;">
-					<el-button @click="resetDateFilter">清除日期过滤器</el-button>
-			  	<el-button @click="clearFilter">清除所有过滤器</el-button>
+				<div class="basic_item">
+					<div class="basic_name">图片名称</div>
+					<el-input v-model="searchData.picName" placeholder="请输入图片名称"></el-input>
 				</div>
-				<el-input v-model="search" size="mini" class="tab_search">
-			    <el-select v-model="selectValue" slot="prepend" style="width: 110px;">
-			      <el-option label="图片名称" value="1"></el-option>
-			      <el-option label="上传者" value="2"></el-option>
-			    </el-select>
-			  </el-input>
+				<div class="basic_item" style="margin-left: 30px;">
+					<div class="basic_name">上传时间</div>
+					<el-col :span="11">
+			      <el-date-picker type="date" placeholder="起始日期" v-model="searchData.startDate" style="width: 100%;"></el-date-picker>
+			    </el-col>
+			    <el-col style="text-align: center;" :span="2">-</el-col>
+			    <el-col :span="11">
+			      <el-date-picker type="date" placeholder="截止日期" v-model="searchData.endDate" style="width: 100%;"></el-date-picker>
+			    </el-col>
+				</div>
+			</div>
+			<div class="basic_button">
+				<div class="basic_item">
+					<div class="basic_name">上传者姓名</div>
+					<el-input v-model="searchData.picUserName" placeholder="请输入上传者姓名"></el-input>
+				</div>
+				<div class="basic_item" style="margin-left: 30px;">
+					<el-button size="mini" type="primary" @click="init()">查询</el-button>
+					<el-button size="mini">重置</el-button>
+				</div>
 			</div>
 		  <el-table
 		    ref="filterTable"
-		    :data="nowData"
+		    :data="tableData"
 		    max-height="300"
 		    tooltip-effect="dark"
+		    @filter-change="filterChange"
 		    @selection-change="handleSelectionChange">
 		    <el-table-column
 		      type="selection"
@@ -44,11 +59,7 @@
 		    <el-table-column
 		      prop="time"
 		      label="上传日期"
-		      sortable
 		      width="150"
-		      column-key="date"
-		      :filters="[{text: '2016-05-01', value: '2016-05-01'}, {text: '2016-05-02', value: '2016-05-02'}, {text: '2016-05-03', value: '2016-05-03'}, {text: '2016-05-04', value: '2016-05-04'}]"
-		      :filter-method="filterHandler"
 		    >
 		    </el-table-column>
 		    <el-table-column
@@ -57,16 +68,15 @@
 		      min-width="250">
 		    </el-table-column>
 		    <el-table-column
-		      prop="classifyName"
+		      prop="classify"
 		      label="分类"
 		      min-width="100"
-		      :filters="[{ text: '家', value: '家' }, { text: '公司', value: '公司' }]"
-		      :filter-method="filterTag"
+		      :filters="classifyList"
+		      :column-key="'time'"
 		      filter-placement="bottom-end">
 		      <template slot-scope="scope">
 		        <el-tag
-		          :type="scope.row.classifyName === '家' ? 'primary' : 'success'"
-		          disable-transitions>{{scope.row.classifyName}}</el-tag>
+		          disable-transitions>{{classifyList.filter(item=>item.value==scope.row.classify)[0].text}}</el-tag>
 		      </template>
 		    </el-table-column>
 		    <el-table-column
@@ -100,90 +110,57 @@
 export default {
 	data() {
 		return {
-			tableData: [{
-				name: '落日余晖',
-				userName: '张无忌',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '夕阳西下',
-				userName: '李清照',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '几度夕阳红',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '青山不改',
-				userName: '辛弃疾',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '绿水长流',
-				userName: '李世民',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '后会有期',
-				userName: '李世民',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '江湖再见',
-				userName: '张三丰',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      },{
-				name: '落日余晖',
-				userName: '张无忌',
-        time: '2016-05-02',
-        describe: '落日余晖，夕阳西下，人影依偎。',
-        classifyName: '家'
-      }],
-      search: '',
-      currentPage: 1,
-      selectValue: '1'
+			tableData: [], // 表格数据
+      search: '', // 搜索关键字
+      currentPage: 1, // 当前页
+      selectValue: '1', // 搜索分类
+      classifyList: [], // 图片分类列表
+    	searchData: {
+    		picName: '', // 搜索图片名称
+	    	picUserName: '', // 上传者姓名
+	    	picClassify: '', // 搜索图片类别
+	    	startDate: '', // 搜索开始时间
+	    	endDate: '' // 搜索结束时间
+    	}
 		}
 	},
-	computed: {
-		nowData () { // 当前表格数据
-			if (this.selectValue == '1') { // 根据图片名称过滤
-				return this.tableData.filter(data => !this.search || data.name.toLowerCase().includes(this.search.toLowerCase()))
-			} else if (this.selectValue == '2') { // 根据上传者姓名进行过滤
-				return this.tableData.filter(data => !this.search || data.userName.toLowerCase().includes(this.search.toLowerCase()))
-			} else {
-				return this.tableData
-			}
-		}
+	mounted() {
+		this.getClassify()
+		this.init()
 	},
 	methods: {
-		resetDateFilter() { // 清除日期选择
-      this.$refs.filterTable.clearFilter('date');
-    },
-    clearFilter() { // 清除所有过滤器
-      this.$refs.filterTable.clearFilter();
-    },
-    formatter(row, column) { // 格式处理
-      return row.address;
-    },
-    filterTag(value, row) { // 标签筛选
-      return row.classifyName === value;
-    },
-    filterHandler(value, row, column) { // 日期筛选
-      const property = column['property'];
-      return row[property] === value;
-    },
+		async getClassify() { // 获取图片分类
+			await this.$post(this.$api.getClassify).then(data => {
+    		if (data.code == 200) {
+    			this.classifyList = data.data.classifyList
+				} else {
+					this.$message.error(data.msg);
+				}
+	    })
+		},
+		async init() { // 查询接口
+			let param = {
+				name: this.searchData.picName, // 图片名称
+				classify: this.searchData.picClassify, // 图片分类
+				userName: this.searchData.picUserName, // 上传者姓名
+				page: 1, // 当前页
+				pageSize: 10 // 每页10条
+			}
+			await this.$post(this.$api.search, param).then(data => {
+    		if (data.code == 200) {
+    			this.tableData = data.data.list
+    			console.log(this.tableData)
+    			this.$forceUpdate()
+				} else {
+					this.$message.error(data.msg);
+				}
+	    })
+		},
+		filterChange(filters) { // 筛选发生变化
+			this.searchData.picClassify = filters.time
+			this.init()
+		},
     handleSelectionChange(val) { // 多选发生变化
-    	console.log(val)
     },
     handleClick(row) { // 点击行方法
       console.log(row);
@@ -193,6 +170,9 @@ export default {
     },
     handleCurrentChange(val) { // 当前页变化
       console.log(`当前页: ${val}`);
+    },
+    resetForm() { // 重置
+    	this.$refs.searchF.resetFields();
     }
 	}
 }
@@ -202,7 +182,15 @@ export default {
 	.basic_button{
 		margin-bottom: 15px;
 		display: flex;
-		justify-content: space-between;
+	}
+	.basic_item{
+		display: flex;
+		align-items: center;
+	}
+	.basic_name{
+		width: 100px;
+		color: #606266;
+		font-size: 14px;
 	}
 	.tab_search{
 		width: 350px;

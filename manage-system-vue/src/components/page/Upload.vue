@@ -35,10 +35,7 @@
 	        	</el-form-item>
 	          <el-form-item label="图片分类" prop="classify">
 	            <el-select v-model="uploadForm.classify" placeholder="请选择图片分类">
-					    	<el-option label="无" value="0"></el-option>
-					      <el-option label="图片管理" value="1"></el-option>
-					      <el-option label="音乐管理" value="2"></el-option>
-					      <el-option label="全部" value="3"></el-option>
+					    	<el-option v-for="(item, index) in classifyList" :key="index" :label="item.text" :value="item.value"></el-option>
 					    </el-select>
 	          </el-form-item>
 	          <el-form-item label="图片描述" prop="describe">
@@ -68,13 +65,13 @@ export default {
 			dialogUploadVisible: false, // 上传图片框
 			dialogImageUrl: '', // 图片预览url
       limit: 1, // 上传文件限制个数
+      classifyList: [], // 图片分类列表
       uploadForm: {
       	name: '',
       	classify: '',
       	describe: ''
       },
       uploadRules: {
-      	name: [ { required: true, message: '请输入图片名称', trigger: 'blur' } ],
       	classify: [ { required: true, message: '请选择图片分类', trigger: 'change' } ]
       }
 		}
@@ -85,7 +82,20 @@ export default {
 	computed: {
   	...mapGetters(['user'])
   },
+  mounted() {
+  	this.getClassify()
+	},
 	methods: {
+		async getClassify() { // 获取图片分类
+			await this.$post(this.$api.getClassify).then(data => {
+    		if (data.code == 200) {
+    			this.classifyList = data.data.classifyList
+					this.$message.success(data.msg);
+				} else {
+					this.$message.error(data.msg);
+				}
+	    })
+		},
 		handleRemove(file, fileList) { // 删除图片
       console.log(file, fileList)
     },
@@ -135,8 +145,6 @@ export default {
 				}
 	    })
     }
-	},
-	created() {
 	}
 }
 </script>
