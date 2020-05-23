@@ -23,11 +23,19 @@ module.exports = {
       let s_sql = `select sql_calc_found_rows * from images ${term} limit ${(param.page-1) * (param.pageSize)}, ${param.pageSize}`;
       let result = await findData(s_sql);
       let total = await findData(`SELECT FOUND_ROWS() as total;`);
+      let newList = result.map(item => {
+        let srcList = [];
+        srcList.push(item.imageUrl);
+        return {
+          ...item,
+          srcList
+        }
+      });
       ctx.body = {
         code: 200,
         msg: '查询成功！',
         data: {
-          list: result,
+          list: newList,
           page: {
             page: param.page,
             pageSize: param.pageSize,

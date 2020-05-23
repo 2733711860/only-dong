@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="nowpage">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item>
@@ -36,40 +36,47 @@
 				</div>
 			</div>
 		  <el-table
+		  	class="pageTable"
 		    ref="filterTable"
 		    :data="tableData"
-		    max-height="300"
+		    max-height="350"
 		    tooltip-effect="dark"
 		    @filter-change="filterChange"
 		    @selection-change="handleSelectionChange">
 		    <el-table-column
 		      type="selection"
+		      align="center"
 		      width="55">
 		    </el-table-column>
 		    <el-table-column
 		      prop="name"
+		      align="center"
 		      label="图片名称"
 		      width="150">
 		    </el-table-column>
 		    <el-table-column
 		      prop="userName"
 		      label="上传者"
+		      align="center"
 		      width="120">
 		    </el-table-column>
 		    <el-table-column
 		      prop="time"
 		      label="上传日期"
+		      align="center"
 		      width="150"
 		    >
 		    </el-table-column>
 		    <el-table-column
 		      prop="describe"
 		      label="图片描述"
+		      align="center"
 		      min-width="250">
 		    </el-table-column>
 		    <el-table-column
 		      prop="classify"
 		      label="分类"
+		      align="center"
 		      min-width="100"
 		      :filters="classifyList"
 		      :column-key="'time'"
@@ -79,13 +86,22 @@
 		          disable-transitions>{{classifyList.filter(item=>item.value==scope.row.classify)[0].text}}</el-tag>
 		      </template>
 		    </el-table-column>
+		    <el-table-column property="imageUrl" label="图片预览" align="center" width="150">
+          <template slot-scope="scope">
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="scope.row.imageUrl"
+              :preview-src-list="scope.row.srcList">
+            </el-image>
+          </template>
+        </el-table-column>
 		    <el-table-column
 		      label="操作"
 		      fixed="right"
+		      align="center"
 		      min-width="220">
 		      <template slot-scope="scope">
-		        <el-button @click="handleClick(scope.row)" size="mini">预览</el-button>
-		        <el-button size="mini">编辑</el-button>
+		        <el-button size="mini" @click="handleClick(scope.row)">编辑</el-button>
 		        <el-button size="mini" type="danger">删除</el-button>
 		      </template>
 		    </el-table-column>
@@ -96,10 +112,10 @@
 		      @size-change="handleSizeChange"
 		      @current-change="handleCurrentChange"
 		      :current-page="currentPage"
-		      :page-sizes="[100, 200, 300, 400]"
-		      :page-size="100"
+		      :page-sizes="[5, 10, 20, 50]"
+		      :page-size="pageSize"
 		      layout="total, sizes, prev, pager, next, jumper"
-		      :total="400">
+		      :total="total">
 		    </el-pagination>
 		  </div>
 		</div>
@@ -113,6 +129,8 @@ export default {
 			tableData: [], // 表格数据
       search: '', // 搜索关键字
       currentPage: 1, // 当前页
+      pageSize: 10, // 每页10条
+      total: 0, // 总数据数
       selectValue: '1', // 搜索分类
       classifyList: [], // 图片分类列表
     	searchData: {
@@ -143,13 +161,13 @@ export default {
 				name: this.searchData.picName, // 图片名称
 				classify: this.searchData.picClassify, // 图片分类
 				userName: this.searchData.picUserName, // 上传者姓名
-				page: 1, // 当前页
-				pageSize: 10 // 每页10条
+				page: this.currentPage, // 当前页
+				pageSize: this.pageSize // 每页多少条
 			}
 			await this.$post(this.$api.search, param).then(data => {
     		if (data.code == 200) {
+    			this.total = data.data.page.total
     			this.tableData = data.data.list
-    			console.log(this.tableData)
     			this.$forceUpdate()
 				} else {
 					this.$message.error(data.msg);
@@ -166,10 +184,12 @@ export default {
       console.log(row);
     },
     handleSizeChange(val) { // 每页条数发生变化
-      console.log(`每页 ${val} 条`);
+    	this.pageSize = val
+    	this.init()
     },
     handleCurrentChange(val) { // 当前页变化
-      console.log(`当前页: ${val}`);
+    	this.currentPage = val
+    	this.init()
     },
     resetForm() { // 重置
     	this.$refs.searchF.resetFields();
